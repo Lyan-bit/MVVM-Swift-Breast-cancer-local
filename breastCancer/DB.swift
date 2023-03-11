@@ -134,7 +134,7 @@ class DB {
     }
     
     while (sqlite3_step(queryStatement) == SQLITE_ROW)
-    { //let id = sqlite3_column_int(queryStatement, 0)
+    { 
       let breastCancervo = BreastCancerVO()
       
     guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1) 

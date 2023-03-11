@@ -4,7 +4,7 @@ import SwiftUI
 struct ListBreastCancerRowScreen: View {
     
     var instance : BreastCancerVO
-    @ObservedObject var model : ModelFacade = ModelFacade.getInstance()
+    @ObservedObject var model : CRUDViewModel = CRUDViewModel.getInstance()
 
       var body: some View { 
       	ScrollView {

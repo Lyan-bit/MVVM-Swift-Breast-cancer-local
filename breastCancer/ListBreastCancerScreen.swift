@@ -2,19 +2,19 @@
 import SwiftUI
 
 struct ListBreastCancerScreen: View {
-    @ObservedObject var model : ModelFacade = ModelFacade.getInstance()
+    @ObservedObject var crud : CRUDViewModel = CRUDViewModel.getInstance()
 
      var body: some View
-     { List(model.currentBreastCancers){ instance in 
+     { List(crud.currentBreastCancers){ instance in
      	ListBreastCancerRowScreen(instance: instance) }
-       .onAppear(perform: { model.listBreastCancer() })
+       .onAppear(perform: { crud.listBreastCancer() })
      }
     
 }
 
 struct ListBreastCancerScreen_Previews: PreviewProvider {
     static var previews: some View {
-        ListBreastCancerScreen(model: ModelFacade.getInstance())
+        ListBreastCancerScreen(crud: CRUDViewModel.getInstance())
     }
 }
 

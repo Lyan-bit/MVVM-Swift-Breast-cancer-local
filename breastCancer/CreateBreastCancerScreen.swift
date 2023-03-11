@@ -4,7 +4,7 @@ import SwiftUI
 struct CreateBreastCancerScreen: View {
  
   @State var bean : BreastCancerVO = BreastCancerVO()
-  @ObservedObject var model : ModelFacade
+  @ObservedObject var crud : CRUDViewModel
 
   var body: some View {
   	NavigationView {
@@ -73,9 +73,9 @@ struct CreateBreastCancerScreen: View {
 
       HStack(spacing: 20) {
         Button(action: { 
-        	self.model.createBreastCancer(x: bean)
+        	self.crud.createBreastCancer(x: bean)
         } ) { Text("Create") }
-        Button(action: { self.model.cancelCreateBreastCancer() } ) { Text("Cancel") }
+        Button(action: { self.crud.cancelCreateBreastCancer() } ) { Text("Cancel") }
       }.buttonStyle(.bordered)
     }.padding(.top)
      }.navigationTitle("Create BreastCancer")
@@ -85,7 +85,7 @@ struct CreateBreastCancerScreen: View {
 
 struct CreateBreastCancerScreen_Previews: PreviewProvider {
     static var previews: some View {
-        CreateBreastCancerScreen(model: ModelFacade.getInstance())
+        CreateBreastCancerScreen(crud: CRUDViewModel.getInstance())
     }
 }
 

@@ -5,17 +5,18 @@ import SwiftUI
 
 struct ContentView : View {
 	
-	@ObservedObject var model : ModelFacade
+	@ObservedObject var model : ClassificationViewModel
+    @ObservedObject var crud : CRUDViewModel
 	                                       
 	var body: some View {
 		TabView {
-            CreateBreastCancerScreen (model: model).tabItem { 
+            CreateBreastCancerScreen (crud: crud).tabItem {
                         Image(systemName: "1.square.fill")
 	                    Text("+BreastCancer")} 
-            ListBreastCancerScreen (model: model).tabItem { 
+            ListBreastCancerScreen (crud: crud).tabItem {
                         Image(systemName: "2.square.fill")
 	                    Text("ListBreastCancer")} 
-            ClassifyBreastCancerScreen (model: model).tabItem { 
+            ClassifyBreastCancerScreen (model: model, crud: crud).tabItem {
                         Image(systemName: "3.square.fill")
 	                    Text("ClassifyBreastCancer")} 
 				}.font(.headline)
@@ -24,7 +25,7 @@ struct ContentView : View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(model: ModelFacade.getInstance())
+        ContentView(model: ClassificationViewModel.getInstance(), crud: CRUDViewModel.getInstance())
     }
 }
 

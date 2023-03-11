@@ -6,9 +6,9 @@ import SwiftUI
 
 func initialiseOclFile()
 { 
-  //let systemIn = createByPKOclFile(key: "System.in")
-  //let systemOut = createByPKOclFile(key: "System.out")
-  //let systemErr = createByPKOclFile(key: "System.err")
+ createByPKOclFile(key: "System.in")
+ createByPKOclFile(key: "System.out")
+ createByPKOclFile(key: "System.err")
 }
 
 /* This metatype code requires OclType.swift */
@@ -91,19 +91,18 @@ func instanceFromJSON(typeName: String, json: String) -> AnyObject?
   return nil
 	}
 
-class ModelFacade : ObservableObject {
+class CRUDViewModel : ObservableObject {
 		                      
-	static var instance : ModelFacade? = nil
-	private var modelParser : ModelParser? = ModelParser(modelFileInfo: ModelFile.modelInfo)
+	static var instance : CRUDViewModel? = nil
 	var db : DB?
 		
 	// path of document directory for SQLite database (absolute path of db)
 	let dbpath: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first ?? ""
 	var fileSystem : FileAccessor = FileAccessor()
 
-	static func getInstance() -> ModelFacade { 
+	static func getInstance() -> CRUDViewModel {
 		if instance == nil
-	     { instance = ModelFacade() 
+	     { instance = CRUDViewModel()
 	       initialiseOclFile()
 	       initialiseOclType() }
 	    return instance! }
@@ -139,37 +138,6 @@ class ModelFacade : ObservableObject {
 	func cancelCreateBreastCancer() {
 		//cancel function
 	}
-
-    func classifyBreastCancer(x : String) -> String {
-        guard let breastCancer = getBreastCancerByPK(val: x)
-        else {
-            return "Please selsect valid id"
-        }
-        
-        guard let result = self.modelParser?.runModel(
-          input0: Float((breastCancer.age - 24) / (89 - 24)),
-          input1: Float((breastCancer.bmi - 18.37) / (38.5787585 - 18.37)),
-          input2: Float((breastCancer.glucose - 60) / (201 - 60)),
-          input3: Float((breastCancer.insulin - 2.432) / (58.46 - 2.432)),
-          input4: Float((breastCancer.homa - 4.311) / (90.28 - 4.311)),
-          input5: Float((breastCancer.leptin - 1.6502) / (38.4 - 1.6502)),
-          input6: Float((breastCancer.adiponectin - 3.21) / (82.1 - 3.21)),
-          input7: Float((breastCancer.resistin - 45.843) / (1698.44 - 45.843)),
-          input8: Float((breastCancer.mcp - 45.843) / (1698.44 - 45.843))
-        ) else{
-            return "Error"
-        }
-        
-        breastCancer.outcome = result
-        persistBreastCancer(x: breastCancer)
-        
-        return result
-	}
-	
-	func cancelClassifyBreastCancer() {
-		//cancel function
-	}
-	    
 
 	func loadBreastCancer() {
 		let res : [BreastCancerVO] = listBreastCancer()
@@ -275,171 +243,7 @@ class ModelFacade : ObservableObject {
 	    func cancelBreastCancerEdit() {
 	    	//cancel function
 	    }
-	    
- 	func searchByBreastCancerid(val : String) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerid(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.id == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerage(val : Int) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerage(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.age == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerbmi(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerbmi(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.bmi == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerglucose(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerglucose(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.glucose == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerinsulin(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerinsulin(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.insulin == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerhoma(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerhoma(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.homa == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerleptin(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerleptin(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.leptin == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCanceradiponectin(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCanceradiponectin(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.adiponectin == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancerresistin(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancerresistin(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.resistin == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCancermcp(val : Float) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCancermcp(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.mcp == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
-		  
- 	func searchByBreastCanceroutcome(val : String) -> [BreastCancerVO]
-		  { 
-		      if db != nil
-		        { let res = (db?.searchByBreastCanceroutcome(val: val))!
-		          return res
-		        }
-		    currentBreastCancers = [BreastCancerVO]()
-		    let list : [BreastCancer] = BreastCancerAllInstances
-		    for (_,x) in list.enumerated()
-		    { if x.outcome == val
-		      { currentBreastCancers.append(BreastCancerVO(x: x)) }
-		    }
-		    return currentBreastCancers
-		  }
+    
 		  
 
 	}

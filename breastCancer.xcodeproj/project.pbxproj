@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0231357C29AD4AE500F28416 /* ListBreastCancerRowScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0231356B29AD4AE400F28416 /* ListBreastCancerRowScreen.swift */; };
-		0231357D29AD4AE500F28416 /* ModelFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0231356C29AD4AE400F28416 /* ModelFacade.swift */; };
+		0231357D29AD4AE500F28416 /* CRUDViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0231356C29AD4AE400F28416 /* CRUDViewModel.swift */; };
 		0231357E29AD4AE500F28416 /* Ocl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0231356D29AD4AE400F28416 /* Ocl.swift */; };
 		0231357F29AD4AE500F28416 /* ListBreastCancerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0231356E29AD4AE400F28416 /* ListBreastCancerScreen.swift */; };
 		0231358029AD4AE500F28416 /* OclType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0231356F29AD4AE400F28416 /* OclType.swift */; };
@@ -27,12 +27,13 @@
 		0231358E29AD4B7000F28416 /* cancer.tflite in Resources */ = {isa = PBXBuildFile; fileRef = 0231358D29AD4B6F00F28416 /* cancer.tflite */; };
 		028C70EE299A524400D197B7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 028C70ED299A524400D197B7 /* Assets.xcassets */; };
 		028C70F1299A524400D197B7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 028C70F0299A524400D197B7 /* Preview Assets.xcassets */; };
+		02F1FDBA29BC1BE700E4CB5A /* ClassificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F1FDB929BC1BE700E4CB5A /* ClassificationViewModel.swift */; };
 		E07E555E7B1E5ABEAE680FDA /* Pods_breastCancer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3140C7CC0F06044291EA17D /* Pods_breastCancer.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0231356B29AD4AE400F28416 /* ListBreastCancerRowScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListBreastCancerRowScreen.swift; sourceTree = "<group>"; };
-		0231356C29AD4AE400F28416 /* ModelFacade.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelFacade.swift; sourceTree = "<group>"; };
+		0231356C29AD4AE400F28416 /* CRUDViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CRUDViewModel.swift; sourceTree = "<group>"; };
 		0231356D29AD4AE400F28416 /* Ocl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ocl.swift; sourceTree = "<group>"; };
 		0231356E29AD4AE400F28416 /* ListBreastCancerScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListBreastCancerScreen.swift; sourceTree = "<group>"; };
 		0231356F29AD4AE400F28416 /* OclType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OclType.swift; sourceTree = "<group>"; };
@@ -53,6 +54,7 @@
 		028C70ED299A524400D197B7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		028C70F0299A524400D197B7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		028C70F7299A526D00D197B7 /* breastCancer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "breastCancer-Bridging-Header.h"; sourceTree = "<group>"; };
+		02F1FDB929BC1BE700E4CB5A /* ClassificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationViewModel.swift; sourceTree = "<group>"; };
 		31DFE311EADAB0A9B9DC3244 /* Pods-breastCancer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-breastCancer.release.xcconfig"; path = "Target Support Files/Pods-breastCancer/Pods-breastCancer.release.xcconfig"; sourceTree = "<group>"; };
 		B3140C7CC0F06044291EA17D /* Pods_breastCancer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_breastCancer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F554DAE1E0702BA5FE3DCAB2 /* Pods-breastCancer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-breastCancer.debug.xcconfig"; path = "Target Support Files/Pods-breastCancer/Pods-breastCancer.debug.xcconfig"; sourceTree = "<group>"; };
@@ -104,7 +106,8 @@
 				0231357A29AD4AE500F28416 /* FileAccessor.swift */,
 				0231356B29AD4AE400F28416 /* ListBreastCancerRowScreen.swift */,
 				0231356E29AD4AE400F28416 /* ListBreastCancerScreen.swift */,
-				0231356C29AD4AE400F28416 /* ModelFacade.swift */,
+				0231356C29AD4AE400F28416 /* CRUDViewModel.swift */,
+				02F1FDB929BC1BE700E4CB5A /* ClassificationViewModel.swift */,
 				0231357929AD4AE500F28416 /* ModelParser.swift */,
 				0231356D29AD4AE400F28416 /* Ocl.swift */,
 				0231357329AD4AE500F28416 /* OclFile.swift */,
@@ -249,11 +252,12 @@
 				0231358929AD4AE500F28416 /* ClassifyBreastCancerScreen.swift in Sources */,
 				0231358729AD4AE500F28416 /* BreastCancerVO.swift in Sources */,
 				0231357C29AD4AE500F28416 /* ListBreastCancerRowScreen.swift in Sources */,
+				02F1FDBA29BC1BE700E4CB5A /* ClassificationViewModel.swift in Sources */,
 				0231358A29AD4AE500F28416 /* ModelParser.swift in Sources */,
 				0231358429AD4AE500F28416 /* OclFile.swift in Sources */,
 				0231358529AD4AE500F28416 /* ContentView.swift in Sources */,
 				0231358C29AD4AE500F28416 /* BreastcancerMain.swift in Sources */,
-				0231357D29AD4AE500F28416 /* ModelFacade.swift in Sources */,
+				0231357D29AD4AE500F28416 /* CRUDViewModel.swift in Sources */,
 				0231357E29AD4AE500F28416 /* Ocl.swift in Sources */,
 				0231358329AD4AE500F28416 /* ClassifyBreastCancerVO.swift in Sources */,
 			);

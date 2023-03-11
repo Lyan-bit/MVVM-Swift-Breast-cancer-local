@@ -3,7 +3,8 @@ import SwiftUI
 
 struct ClassifyBreastCancerScreen: View {
     @State var objectId: String = ""
-    @ObservedObject var model : ModelFacade
+    @ObservedObject var model : ClassificationViewModel
+    @ObservedObject var crud : CRUDViewModel
     
     @State var result = ""
 
@@ -15,7 +16,7 @@ struct ClassifyBreastCancerScreen: View {
              	Text("id:").bold()
              	Divider()
                 Picker("Select a object", selection: $objectId) {
-                  ForEach(model.currentBreastCancers) { Text($0.id).tag($0.id) }
+                  ForEach(crud.currentBreastCancers) { Text($0.id).tag($0.id) }
                 }.pickerStyle(.menu)
              }.frame(width: 200, height: 30).border(Color.gray)
                         
@@ -29,8 +30,8 @@ struct ClassifyBreastCancerScreen: View {
 				Button(action: {self.model.cancelClassifyBreastCancer() } ) { Text("Cancel") }
 		     }.buttonStyle(.bordered)
         }.onAppear(perform:
-        	{ objectId = model.currentBreastCancer?.id ?? "id" 
-        	  model.listBreastCancer()
+        	{ objectId = crud.currentBreastCancer?.id ?? "id"
+            crud.listBreastCancer()
         	})
         }.navigationTitle("classifyBreastCancer")
       }
@@ -39,7 +40,7 @@ struct ClassifyBreastCancerScreen: View {
 
 struct ClassifyBreastCancerScreen_Previews: PreviewProvider {
     static var previews: some View {
-        ClassifyBreastCancerScreen(model: ModelFacade.getInstance())
+        ClassifyBreastCancerScreen(model: ClassificationViewModel.getInstance(), crud: CRUDViewModel.getInstance())
     }
 }
 
