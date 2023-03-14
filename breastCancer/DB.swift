@@ -5,16 +5,16 @@ import SQLite3
 
 class DB {
   let dbPointer : OpaquePointer?
-  static let dbNAME = "breastcancerApp.db"
-  static let dbVERSION = 1
+  static let dbName = "breastcancerApp.db"
+  static let dbVersion = 1
 
-  static let breastCancerTABLENAME = "BreastCancer"
+  static let breastCancerTableName = "BreastCancer"
   static let breastCancerID = 0
-  static let breastCancerCOLS : [String] = ["TableId", "id", "age", "bmi", "glucose", "insulin", "homa", "leptin", "adiponectin", "resistin", "mcp", "outcome"]
-  static let breastCancerNUMBERCOLS = 0
+  static let breastCancerCols : [String] = ["TableId", "id", "age", "bmi", "glucose", "insulin", "homa", "leptin", "adiponectin", "resistin", "mcp", "outcome"]
+  static let breastCancerNumberCols = 0
 
-  static let breastCancerCREATESCHEMA =
-    "create table BreastCancer (TableId integer primary key autoincrement" + 
+  static let breastCancerCreateSchema =
+    "create table BreastCancer (TableId integer primary key autoincrement" +
         ", id VARCHAR(50) not null"  +
         ", age integer not null"  +
         ", bmi float not null"  +
@@ -26,15 +26,15 @@ class DB {
         ", resistin float not null"  +
         ", mcp float not null"  +
         ", outcome VARCHAR(50) not null"  +
-	"" + ")"
-	
+    "" + ")"
+    
   private init(dbPointer: OpaquePointer?)
   { self.dbPointer = dbPointer }
 
   func createDatabase() throws
-  { do 
-    { 
-    try createTable(table: DB.breastCancerCREATESCHEMA)
+  { do
+    {
+    try createTable(table: DB.breastCancerCreateSchema)
       print("Created database")
     }
     catch { print("Errors: " + errorMessage) }
@@ -52,8 +52,8 @@ class DB {
         else
         { print("Failed to open existing database") }
       }
-      catch { print("Error opening existing database") 
-              return nil 
+      catch { print("Error opening existing database")
+              return nil
             }
     }
     else
@@ -61,13 +61,13 @@ class DB {
       do
       { try db = DB.open(path: path)
         if db != nil
-        { print("Opened new database") 
-          try db!.createDatabase() 
+        { print("Opened new database")
+          try db!.createDatabase()
         }
         else
         { print("Failed to open new database") }
       }
-      catch { print("Error opening new database")  
+      catch { print("Error opening new database")
               return nil }
     }
     return db
@@ -77,36 +77,36 @@ class DB {
   { if let errorPointer = sqlite3_errmsg(dbPointer)
     { let eMessage = String(cString: errorPointer)
       return eMessage
-    } 
-    else 
+    }
+    else
     { return "Unknown error from sqlite." }
   }
   
-  func prepareStatement(sql: String) throws -> OpaquePointer?   
+  func prepareStatement(sql: String) throws -> OpaquePointer?
   { var statement: OpaquePointer?
-    guard sqlite3_prepare_v2(dbPointer, sql, -1, &statement, nil) 
+    guard sqlite3_prepare_v2(dbPointer, sql, -1, &statement, nil)
         == SQLITE_OK
-    else 
+    else
     { return nil }
     return statement
   }
   
-  static func open(path: String) throws -> DB? 
+  static func open(path: String) throws -> DB?
   { var db: OpaquePointer?
   
-    if sqlite3_open(path, &db) == SQLITE_OK 
+    if sqlite3_open(path, &db) == SQLITE_OK
     { return DB(dbPointer: db) }
-    else 
-    { defer 
-      { if db != nil 
+    else
+    { defer
+      { if db != nil
         { sqlite3_close(db) }
       }
   
       if let errorPointer = sqlite3_errmsg(db)
       { let message = String(cString: errorPointer)
         print("Error opening database: " + message)
-      } 
-      else 
+      }
+      else
       { print("Unknown error opening database") }
       return nil
     }
@@ -114,687 +114,135 @@ class DB {
   
   func createTable(table: String) throws
   { let createTableStatement = try prepareStatement(sql: table)
-    defer 
+    defer
     { sqlite3_finalize(createTableStatement) }
     
-    guard sqlite3_step(createTableStatement) == SQLITE_DONE 
+    guard sqlite3_step(createTableStatement) == SQLITE_DONE
     else
-    { print("Error creating table") 
+    { print("Error creating table")
       return
     }
     print("table " + table + " created.")
   }
 
   func listBreastCancer() -> [BreastCancerVO]
-  { var res : [BreastCancerVO] = [BreastCancerVO]()
-    let statement = "SELECT * FROM BreastCancer "
-    let queryStatement = try? prepareStatement(sql: statement)
-    if queryStatement == nil { 
-    	return res
-    }
-    
-    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-    { 
-      let breastCancervo = BreastCancerVO()
-      
-    guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1) 
-    else { return res } 
-    let id = String(cString: queryResultBreastCancerCOLID) 
-    breastCancervo.setId(x: id) 
-
-    let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2) 
-    let age = Int(queryResultBreastCancerCOLAGE) 
-    breastCancervo.setAge(x: age) 
-
-    let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3) 
-    let bmi = Float(queryResultBreastCancerCOLBMI) 
-    breastCancervo.setBmi(x: bmi) 
-
-    let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4) 
-    let glucose = Float(queryResultBreastCancerCOLGLUCOSE) 
-    breastCancervo.setGlucose(x: glucose) 
-
-    let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5) 
-    let insulin = Float(queryResultBreastCancerCOLINSULIN) 
-    breastCancervo.setInsulin(x: insulin) 
-
-    let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6) 
-    let homa = Float(queryResultBreastCancerCOLHOMA) 
-    breastCancervo.setHoma(x: homa) 
-
-    let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7) 
-    let leptin = Float(queryResultBreastCancerCOLLEPTIN) 
-    breastCancervo.setLeptin(x: leptin) 
-
-    let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8) 
-    let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN) 
-    breastCancervo.setAdiponectin(x: adiponectin) 
-
-    let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9) 
-    let resistin = Float(queryResultBreastCancerCOLRESISTIN) 
-    breastCancervo.setResistin(x: resistin) 
-
-    let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10) 
-    let mcp = Float(queryResultBreastCancerCOLMCP) 
-    breastCancervo.setMcp(x: mcp) 
-
-    guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11) 
-    else { return res } 
-    let outcome = String(cString: queryResultBreastCancerCOLOUTCOME) 
-    breastCancervo.setOutcome(x: outcome) 
-
-      res.append(breastCancervo)
-    }
-    sqlite3_finalize(queryStatement)
-    return res
+  {
+      let statement = "SELECT * FROM BreastCancer "
+      return setDataBreastCancer(statement: statement)
   }
 
   func createBreastCancer(breastCancervo : BreastCancerVO) throws
-  { let insertSQL : String = "INSERT INTO BreastCancer (id, age, bmi, glucose, insulin, homa, leptin, adiponectin, resistin, mcp, outcome) VALUES (" 
-     + "'" + breastCancervo.getId() + "'" + "," 
-     + String(breastCancervo.getAge()) + "," 
-     + String(breastCancervo.getBmi()) + "," 
-     + String(breastCancervo.getGlucose()) + "," 
-     + String(breastCancervo.getInsulin()) + "," 
-     + String(breastCancervo.getHoma()) + "," 
-     + String(breastCancervo.getLeptin()) + "," 
-     + String(breastCancervo.getAdiponectin()) + "," 
-     + String(breastCancervo.getResistin()) + "," 
-     + String(breastCancervo.getMcp()) + "," 
+  { let insertSQL : String = "INSERT INTO BreastCancer (id, age, bmi, glucose, insulin, homa, leptin, adiponectin, resistin, mcp, outcome) VALUES ("
+
+     + "'" + breastCancervo.getId() + "'" + ","
+     + String(breastCancervo.getAge()) + ","
+     + String(breastCancervo.getBmi()) + ","
+     + String(breastCancervo.getGlucose()) + ","
+     + String(breastCancervo.getInsulin()) + ","
+     + String(breastCancervo.getHoma()) + ","
+     + String(breastCancervo.getLeptin()) + ","
+     + String(breastCancervo.getAdiponectin()) + ","
+     + String(breastCancervo.getResistin()) + ","
+     + String(breastCancervo.getMcp()) + ","
      + "'" + breastCancervo.getOutcome() + "'"
       + ")"
     let insertStatement = try prepareStatement(sql: insertSQL)
-    defer 
+    defer
     { sqlite3_finalize(insertStatement)
     }
     sqlite3_step(insertStatement)
   }
 
   func searchByBreastCancerid(val : String) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE id = " + "'" + val + "'" 
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE id = " + "'" + val + "'"
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerage(val : Int) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE age = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE age = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerbmi(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE bmi = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE bmi = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerglucose(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE glucose = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE glucose = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerinsulin(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE insulin = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE insulin = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerhoma(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE homa = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE homa = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerleptin(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE leptin = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE leptin = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCanceradiponectin(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE adiponectin = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE adiponectin = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancerresistin(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE resistin = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE resistin = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCancermcp(val : Float) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE mcp = " + String( val )
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE mcp = " + String( val )
+          return setDataBreastCancer(statement: statement)
+      }
+      
   func searchByBreastCanceroutcome(val : String) -> [BreastCancerVO]
-	  { var res : [BreastCancerVO] = [BreastCancerVO]()
-	    let statement : String = "SELECT * FROM BreastCancer WHERE outcome = " + "'" + val + "'" 
-	    let queryStatement = try? prepareStatement(sql: statement)
-	    
-	    while (sqlite3_step(queryStatement) == SQLITE_ROW)
-	    { //let id = sqlite3_column_int(queryStatement, 0)
-	      let breastCancervo = BreastCancerVO()
-	      
-	      guard let queryResultBreastCancerCOLID = sqlite3_column_text(queryStatement, 1)
-		      else { return res }	      
-		      let id = String(cString: queryResultBreastCancerCOLID)
-		      breastCancervo.setId(x: id)
-	      let queryResultBreastCancerCOLAGE = sqlite3_column_int(queryStatement, 2)
-		      let age = Int(queryResultBreastCancerCOLAGE)
-		      breastCancervo.setAge(x: age)
-	      let queryResultBreastCancerCOLBMI = sqlite3_column_double(queryStatement, 3)
-		      let bmi = Float(queryResultBreastCancerCOLBMI)
-		      breastCancervo.setBmi(x: bmi)
-	      let queryResultBreastCancerCOLGLUCOSE = sqlite3_column_double(queryStatement, 4)
-		      let glucose = Float(queryResultBreastCancerCOLGLUCOSE)
-		      breastCancervo.setGlucose(x: glucose)
-	      let queryResultBreastCancerCOLINSULIN = sqlite3_column_double(queryStatement, 5)
-		      let insulin = Float(queryResultBreastCancerCOLINSULIN)
-		      breastCancervo.setInsulin(x: insulin)
-	      let queryResultBreastCancerCOLHOMA = sqlite3_column_double(queryStatement, 6)
-		      let homa = Float(queryResultBreastCancerCOLHOMA)
-		      breastCancervo.setHoma(x: homa)
-	      let queryResultBreastCancerCOLLEPTIN = sqlite3_column_double(queryStatement, 7)
-		      let leptin = Float(queryResultBreastCancerCOLLEPTIN)
-		      breastCancervo.setLeptin(x: leptin)
-	      let queryResultBreastCancerCOLADIPONECTIN = sqlite3_column_double(queryStatement, 8)
-		      let adiponectin = Float(queryResultBreastCancerCOLADIPONECTIN)
-		      breastCancervo.setAdiponectin(x: adiponectin)
-	      let queryResultBreastCancerCOLRESISTIN = sqlite3_column_double(queryStatement, 9)
-		      let resistin = Float(queryResultBreastCancerCOLRESISTIN)
-		      breastCancervo.setResistin(x: resistin)
-	      let queryResultBreastCancerCOLMCP = sqlite3_column_double(queryStatement, 10)
-		      let mcp = Float(queryResultBreastCancerCOLMCP)
-		      breastCancervo.setMcp(x: mcp)
-	      guard let queryResultBreastCancerCOLOUTCOME = sqlite3_column_text(queryStatement, 11)
-		      else { return res }	      
-		      let outcome = String(cString: queryResultBreastCancerCOLOUTCOME)
-		      breastCancervo.setOutcome(x: outcome)
-
-	      res.append(breastCancervo)
-	    }
-	    sqlite3_finalize(queryStatement)
-	    return res
-	  }
-	  
+      {
+          let statement : String = "SELECT * FROM BreastCancer WHERE outcome = " + "'" + val + "'"
+          return setDataBreastCancer(statement: statement)
+      }
+      
 
   func editBreastCancer(breastCancervo : BreastCancerVO)
   { var updateStatement: OpaquePointer?
-    let statement : String = "UPDATE BreastCancer SET " 
-    + " age = " + String(breastCancervo.getAge()) 
- + "," 
-    + " bmi = " + String(breastCancervo.getBmi()) 
- + "," 
-    + " glucose = " + String(breastCancervo.getGlucose()) 
- + "," 
-    + " insulin = " + String(breastCancervo.getInsulin()) 
- + "," 
-    + " homa = " + String(breastCancervo.getHoma()) 
- + "," 
-    + " leptin = " + String(breastCancervo.getLeptin()) 
- + "," 
-    + " adiponectin = " + String(breastCancervo.getAdiponectin()) 
- + "," 
-    + " resistin = " + String(breastCancervo.getResistin()) 
- + "," 
-    + " mcp = " + String(breastCancervo.getMcp()) 
- + "," 
-    + " outcome = '"+breastCancervo.getOutcome() + "'" 
-    + " WHERE id = '" + breastCancervo.getId() + "'" 
+    let statement : String = "UPDATE BreastCancer SET "
+    + " age = " + String(breastCancervo.getAge())
+    + ","
+    + " bmi = " + String(breastCancervo.getBmi())
+    + ","
+    + " glucose = " + String(breastCancervo.getGlucose())
+    + ","
+    + " insulin = " + String(breastCancervo.getInsulin())
+    + ","
+    + " homa = " + String(breastCancervo.getHoma())
+    + ","
+    + " leptin = " + String(breastCancervo.getLeptin())
+    + ","
+    + " adiponectin = " + String(breastCancervo.getAdiponectin())
+    + ","
+    + " resistin = " + String(breastCancervo.getResistin())
+    + ","
+    + " mcp = " + String(breastCancervo.getMcp())
+    + ","
+    + " outcome = '"+breastCancervo.getOutcome() + "'"
+    + " WHERE id = '" + breastCancervo.getId() + "'"
 
     if sqlite3_prepare_v2(dbPointer, statement, -1, &updateStatement, nil) == SQLITE_OK
     { sqlite3_step(updateStatement) }
@@ -814,5 +262,55 @@ class DB {
   deinit
   { sqlite3_close(self.dbPointer) }
 
+  func setDataBreastCancer(statement: String) -> [BreastCancerVO] {
+          var res : [BreastCancerVO] = [BreastCancerVO]()
+          let queryStatement = try? prepareStatement(sql: statement)
+          
+          while (sqlite3_step(queryStatement) == SQLITE_ROW)
+          {
+            let breastCancervo = BreastCancerVO()
+            
+          guard let queryResultBreastCancerColId = sqlite3_column_text(queryStatement, 1)
+                  else { return res }
+                  let id = String(cString: queryResultBreastCancerColId)
+                  breastCancervo.setId(x: id)
+          let queryResultBreastCancerColAge = sqlite3_column_int(queryStatement, 2)
+                  let age = Int(queryResultBreastCancerColAge)
+                  breastCancervo.setAge(x: age)
+          let queryResultBreastCancerColBmi = sqlite3_column_double(queryStatement, 3)
+                  let bmi = Float(queryResultBreastCancerColBmi)
+                  breastCancervo.setBmi(x: bmi)
+          let queryResultBreastCancerColGlucose = sqlite3_column_double(queryStatement, 4)
+                  let glucose = Float(queryResultBreastCancerColGlucose)
+                  breastCancervo.setGlucose(x: glucose)
+          let queryResultBreastCancerColInsulin = sqlite3_column_double(queryStatement, 5)
+                  let insulin = Float(queryResultBreastCancerColInsulin)
+                  breastCancervo.setInsulin(x: insulin)
+          let queryResultBreastCancerColHoma = sqlite3_column_double(queryStatement, 6)
+                  let homa = Float(queryResultBreastCancerColHoma)
+                  breastCancervo.setHoma(x: homa)
+          let queryResultBreastCancerColLeptin = sqlite3_column_double(queryStatement, 7)
+                  let leptin = Float(queryResultBreastCancerColLeptin)
+                  breastCancervo.setLeptin(x: leptin)
+          let queryResultBreastCancerColAdiponectin = sqlite3_column_double(queryStatement, 8)
+                  let adiponectin = Float(queryResultBreastCancerColAdiponectin)
+                  breastCancervo.setAdiponectin(x: adiponectin)
+          let queryResultBreastCancerColResistin = sqlite3_column_double(queryStatement, 9)
+                  let resistin = Float(queryResultBreastCancerColResistin)
+                  breastCancervo.setResistin(x: resistin)
+          let queryResultBreastCancerColMcp = sqlite3_column_double(queryStatement, 10)
+                  let mcp = Float(queryResultBreastCancerColMcp)
+                  breastCancervo.setMcp(x: mcp)
+          guard let queryResultBreastCancerColOutcome = sqlite3_column_text(queryStatement, 11)
+                  else { return res }
+                  let outcome = String(cString: queryResultBreastCancerColOutcome)
+                  breastCancervo.setOutcome(x: outcome)
+  
+            res.append(breastCancervo)
+          }
+          sqlite3_finalize(queryStatement)
+          return res
+      }
+      
 }
 
